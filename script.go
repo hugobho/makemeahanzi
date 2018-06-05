@@ -16,17 +16,19 @@ func check(e error) {
 	}
 }
 
+type EtymologyStruct struct {
+	Type string `json:"type,omitempty"`
+	Hint string `json:"hint,omitempty"`
+}
+
 type Chinese struct {
-	Character     string `json:"character,omitempty"`
-	Definition    string `json:"definition,omitempty"`
-	Pinyin        string `json:"pinyin,omitempty"`
-	Decomposition string `json:"decomposition,omitempty"`
-	Radical       string `json:"radical,omitempty"`
-	Etymology     struct {
-		Type string `json:"type,omitempty"`
-		Hint string `json:"hint,omitempty"`
-	} `json:"etymology,omitempty"`
-	Matches interface{} `json:"matches,omitempty"`
+	Character     string          `json:"character,omitempty"`
+	Definition    string          `json:"definition,omitempty"`
+	Pinyin        string          `json:"pinyin,omitempty"`
+	Decomposition string          `json:"decomposition,omitempty"`
+	Radical       string          `json:"radical,omitempty"`
+	Etymology     EtymologyStruct `json:"etymology,omitempty"`
+	Matches       interface{}     `json:"matches,omitempty"`
 }
 
 func compileRadicals(characters []Chinese) {
@@ -45,6 +47,18 @@ func compileDecomposition(characters []Chinese) {
 		count[decomposition] = count[decomposition] + 1
 	}
 	fmt.Println("=== DECOMPOSITION ===")
+	printSorted(count)
+}
+
+func compileEtymology(characters []Chinese) {
+	count := map[string]int{}
+	for _, character := range characters {
+		if character.Etymology != (EtymologyStruct{}) {
+			etType := character.Etymology.Type
+			count[etType] = count[etType] + 1
+		}
+	}
+	fmt.Println("=== ETYMOLOGY ===")
 	printSorted(count)
 }
 
@@ -67,7 +81,12 @@ func printSorted(m map[string]int) {
 	// 	fmt.Printf("%s, %d\n", kv.Key, kv.Value)
 	// }
 
-	for i := 0; i <= 10; i++ {
+	printMax := 9
+	if len(ss) < printMax {
+		printMax = len(ss) - 1
+	}
+
+	for i := 0; i <= printMax; i++ {
 		fmt.Printf("%s: %d\n", ss[i].Key, ss[i].Value)
 	}
 }
@@ -88,4 +107,6 @@ func main() {
 	compileRadicals(characters)
 	fmt.Println()
 	compileDecomposition(characters)
+	fmt.Println()
+	compileEtymology(characters)
 }
